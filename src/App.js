@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-let size = 60;
-let numBombs = 300;
+let size = 15;
+let numBombs = 30;
 function App() {
   const [tiles, setTiles] = useState([]);
   const [isFlagging, setIsFlagging] = useState(false);
@@ -16,7 +16,7 @@ function App() {
       {
         unprovoked += 1;
       }
-      if (tile.isBomb && tile.isToggled)
+      if (tile.isBomb && tile.isToggled && !tile.isFlagged)
       {
         userLost = true;
       }
@@ -24,13 +24,15 @@ function App() {
     if (userLost)
     {
       setUserWon(false);
+      setGameOver(true);
     }
     else if (unprovoked == numBombs)
     {
-      console.log("you won!!!!")
+      //console.log("you won!!!!")
       setUserWon(true);
       setGameOver(true);
     }
+    //console.log(unprovoked)
     
       
   }, [tiles])
@@ -63,6 +65,7 @@ function App() {
       gameOverText = <h1>Game Over!</h1>
     }
     restartBtn = <button className='restart' onClick={() => {
+      setUserWon(false);
       setIsFlagging(false);
       setGameOver(false);
       populateTiles(setTiles);
@@ -73,7 +76,7 @@ function App() {
     <div className="App">
       <h1>Minesweeper</h1>
       <div className="board" style={boardStyle}>
-        {renderTiles(tiles, setTiles, isFlagging, isGameOver, setGameOver)}
+        {renderTiles(tiles, setTiles, isFlagging, isGameOver, setGameOver, userWon)}
       </div>
       
       <div className="buttons">
@@ -115,7 +118,7 @@ function populateTiles(setTiles)
   setTiles(dummyTiles);
 }
 
-function renderTiles(tiles, setTiles, isFlagging, isGameOver, setGameOver)
+function renderTiles(tiles, setTiles, isFlagging, isGameOver, setGameOver, userWon)
 {
   return tiles.map(tile => {
     let thisClass = "tile"
@@ -144,6 +147,12 @@ function renderTiles(tiles, setTiles, isFlagging, isGameOver, setGameOver)
     else if (tile.isBomb && tile.isToggled)
     {
       thisClass += " clickedBomb"
+    }
+    if (userWon && tile.isBomb)
+    {
+      //console.log(userWon)
+      thisClass += " flagged"
+      bombsAround = "F"
     }
     
     return (<div className={thisClass} key={tile.key} onClick={() => clickTile(tiles, setTiles, tile, isFlagging, isGameOver, setGameOver)}>{bombsAround}</div>);
